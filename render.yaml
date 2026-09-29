@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+#
+# NOFX on Render: one-click gallery template
+# Repo: https://github.com/render-examples/nofx-render-template
+# Upstream: https://github.com/NoFxAiOS/nofx
+#
+# Pattern: image-wrapper (official GHCR backend + frontend images)
+
+previews:
+  generation: off
+
+projects:
+  - name: nofx-render-template
+    environments:
+      - name: production
+        services:
+          - type: pserv
+            name: nofx
+            runtime: image
+            plan: starter
+            region: oregon
+            image:
+              url: ghcr.io/nofxaios/nofx/nofx-backend:latest
+            autoDeployTrigger: off
+            disk:
+              name: nofx-data
+              mountPath: /app/data
+              sizeGB: 5
+            envVars:
+              - key: DB_TYPE
+                value: sqlite
+              - key: DB_PATH
+                value: /app/data/data.db
+              - key: TZ
+                value: UTC
+              - key: TRANSPORT_ENCRYPTION
+                value: "false"
+              - key: AI_MAX_TOKENS
+                value: "8000"
+              - key: JWT_SECRET
+                generateValue: true
+              - key: DATA_ENCRYPTION_KEY
+                generateValue: true
+
+          - type: web
+            name: nofx-web
+            runtime: image
+            plan: starter
+            region: oregon
+            image:
+              url: ghcr.io/nofxaios/nofx/nofx-frontend:latest
+            healthCheckPath: /health
+            autoDeployTrigger: off
